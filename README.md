@@ -6,7 +6,21 @@ Ao clicar na barra, você encontra a letra completa, controles de reprodução e
 
 ## Instalação
 
-Por enquanto, a instalação é feita compilando o projeto no próprio Mac.
+### Baixar o app pronto
+
+**Quer instalar sem compilar? [Baixe o Lyricz para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.4.0/Lyricz-1.4.0-macOS-AppleSilicon.zip).**
+
+1. Baixe o ZIP e dê dois cliques para extrair.
+2. Arraste **Lyricz.app** para **Aplicativos**.
+3. Abra o Lyricz, deixe o Spotify tocando e permita o acesso quando o macOS solicitar.
+
+Esse download é para Macs com chip **M1, M2, M3 ou outro Apple Silicon**, com macOS 13 ou superior. Ainda não há um download pronto para Macs Intel. Todas as versões publicadas ficam em [Releases](https://github.com/luczz1/lyricz/releases).
+
+O app tem assinatura local e ainda não é notarizado pela Apple. Se o macOS bloquear a abertura por não conseguir verificar o desenvolvedor, confira se o arquivo veio deste repositório e, se confiar nele, use **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim** após tentar abri-lo.
+
+### Compilar no próprio Mac
+
+Se preferir compilar, siga os passos abaixo.
 
 Você vai precisar de:
 
@@ -155,7 +169,9 @@ O macOS pode esconder itens quando falta espaço, principalmente em telas com no
 
 **Quero atualizar o aplicativo**
 
-Encerre o Lyricz pelo menu **…** e, na pasta do projeto, execute:
+Se instalou pelo ZIP, encerre o Lyricz, baixe a versão nova em [Releases](https://github.com/luczz1/lyricz/releases) e substitua o app em Aplicativos. Seus favoritos e ajustes são mantidos.
+
+Se compilou pelo código-fonte, encerre o Lyricz pelo menu **…** e, na pasta do projeto, execute:
 
 ```sh
 git pull --ff-only
