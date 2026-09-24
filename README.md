@@ -4,6 +4,16 @@ Letras do Spotify na barra de menus do Mac. O Lyricz acompanha a música que est
 
 Ao clicar na barra, você encontra a letra completa, controles de reprodução e um painel com as cores da capa do álbum. Também dá para deixar a letra numa janela flutuante e salvar seus trechos favoritos.
 
+## Conheça a interface
+
+<p align="center">
+  <img src="docs/images/letras.png" alt="Painel de letras do Lyricz com a frase atual em destaque" width="260">
+  <img src="docs/images/favoritos.png" alt="Trechos favoritos com opções para copiar e salvar como imagem" width="260">
+  <img src="docs/images/ajustes.png" alt="Ajustes de cores, letra flutuante e exibição na barra de menus" width="260">
+</p>
+
+Da esquerda para a direita: **letra sincronizada**, **trechos favoritos** e **ajustes**. Capturas do modo de demonstração, com música e letra fictícias.
+
 ## Instalação
 
 ### Baixar o app pronto
