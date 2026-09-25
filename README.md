@@ -1,6 +1,6 @@
 # Lyricz
 
-Letras do Spotify na barra de menus do Mac. O Lyricz acompanha a música que está tocando e mostra a frase atual sem precisar deixar o Spotify aberto na tela.
+Letras do Spotify e do Apple Music na barra de menus do Mac. O Lyricz acompanha a música que está tocando e mostra a frase atual sem precisar deixar o player aberto na tela.
 
 Ao clicar na barra, você encontra a letra completa, controles de reprodução e um painel com as cores da capa do álbum. Também dá para deixar a letra numa janela flutuante e salvar seus trechos favoritos.
 
@@ -17,6 +17,8 @@ Da esquerda para a direita: **letra sincronizada**, **trechos favoritos** e **aj
 ## Instalação
 
 ### Baixar o app pronto
+
+O suporte ao Apple Music está no código da versão 1.5. O download abaixo é da versão 1.4, com suporte ao Spotify; para usar o Apple Music agora, siga a opção de compilação abaixo.
 
 **Quer instalar sem compilar? [Baixe o Lyricz para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.4.0/Lyricz-1.4.0-macOS-AppleSilicon.zip).**
 
@@ -35,7 +37,7 @@ Se preferir compilar, siga os passos abaixo.
 Você vai precisar de:
 
 - macOS 13 ou superior.
-- Spotify para macOS instalado.
+- Spotify para macOS ou o app Música (Apple Music) instalado.
 - Xcode ou Command Line Tools com Swift 6 ou superior.
 - Internet para buscar letras e carregar capas.
 
@@ -77,16 +79,30 @@ O build usa assinatura local e não é notarizado para distribuição. O aplicat
 
 ## Primeiro uso
 
-1. Abra o Spotify neste Mac e coloque uma música para tocar.
+1. Abra o Spotify ou o Apple Music neste Mac e coloque uma música para tocar.
 2. Abra o Lyricz.
-3. Quando o macOS pedir, permita que o Lyricz controle o Spotify. Essa permissão é usada para ler a faixa, acompanhar a posição e oferecer os controles de reprodução.
+3. Quando o macOS pedir, permita que o Lyricz controle o player escolhido. Essa permissão é usada para ler a faixa, acompanhar a posição e oferecer os controles de reprodução.
 4. Clique na frase ou no ícone do Lyricz na barra de menus para abrir o painel.
 
-Não é necessário configurar uma conta de desenvolvedor do Spotify, chaves de API ou fazer outro login. A integração usa o Spotify instalado no Mac; o Web Player e a reprodução exclusivamente no celular não são suportados.
+Não é necessário configurar uma conta de desenvolvedor do Spotify, chaves de API ou fazer outro login. A integração usa os aplicativos instalados no Mac; os players de navegador e a reprodução exclusivamente no celular não são suportados.
 
 Para encerrar o aplicativo, abra **… → Sair do Lyricz**.
 
 ## Como usar
+
+### Spotify, Apple Music e troca automática
+
+Em **… → Player** ou nos ajustes, escolha **Automático**, **Spotify** ou **Apple Music**.
+
+- **Automático:** acompanha o player que começar a tocar. Quando o outro sai da pausa e começa a reproduzir, o Lyricz passa a acompanhá-lo. Se os dois já estiverem tocando, mantém a seleção atual; ao abrir sem seleção anterior, usa o Spotify como desempate.
+- **Spotify / Apple Music:** fixa o player, mesmo se o outro estiver tocando. A preferência é lembrada ao reabrir o app.
+
+O nome no topo do painel indica o player conectado. Pausa, troca de faixa e clique em versos controlam esse player. O Lyricz não pausa o outro aplicativo automaticamente.
+
+O macOS pede permissão de Automação separadamente para cada app. Se negar acesso a um deles, o outro continua disponível no modo automático. Depois de liberar a permissão, use **… → Reconectar**.
+
+No Apple Music, a faixa precisa disponibilizar título, duração e posição pelo app Música. A capa é usada quando o app a fornece. As letras continuam vindo do LRCLIB, inclusive para músicas tocadas no Apple Music. Favoritos, cores, janela flutuante e ajustes de tempo funcionam com ambos; as preferências por faixa são separadas por player.
+
 
 ### Letra na barra de menus
 
@@ -161,9 +177,9 @@ Se mover o aplicativo para outra pasta depois disso, desative e ative essa opç�
 
 ## Problemas comuns
 
-**O Lyricz não consegue acessar o Spotify**
+**O Lyricz não consegue acessar o player**
 
-Em **Ajustes do Sistema → Privacidade e Segurança → Automação**, confira se o acesso ao Spotify está habilitado para o Lyricz. Depois, use **… → Reconectar**. Recompilar ou mover um app com assinatura local pode exigir uma nova autorização.
+Em **Ajustes do Sistema → Privacidade e Segurança → Automação**, confira se o acesso ao Spotify ou ao Música está habilitado para o Lyricz. Depois, use **… → Reconectar**. Recompilar ou mover um app com assinatura local pode exigir uma nova autorização.
 
 **A letra não apareceu**
 
@@ -192,9 +208,9 @@ Abra o novo `dist/Lyricz.app`. Se usa uma cópia em Aplicativos, substitua essa 
 
 ## Dados e privacidade
 
-O Lyricz lê a faixa e a posição de reprodução do Spotify local. Para buscar letras, envia os metadados da música ao LRCLIB. As capas são baixadas pelos endereços fornecidos pelo Spotify e as cores são extraídas no próprio Mac.
+O Lyricz lê a faixa e a posição de reprodução dos players locais. Para buscar letras, envia os metadados da música ao LRCLIB. As capas do Spotify são baixadas pelos endereços fornecidos pelo app. No Apple Music, a imagem é lida diretamente do app Música. As cores são extraídas no próprio Mac.
 
-Preferências, correções de tempo, trechos favoritos com suas capas e versões de letras escolhidas manualmente ficam armazenados localmente. Não há sincronização desses dados entre dispositivos, telemetria própria ou armazenamento de credenciais do Spotify.
+Preferências, correções de tempo, trechos favoritos com suas capas e versões de letras escolhidas manualmente ficam armazenados localmente. Não há sincronização desses dados entre dispositivos, telemetria própria ou armazenamento de credenciais dos serviços.
 
 ## Desenvolvimento
 
@@ -211,11 +227,11 @@ Para conferir a interface com uma música fictícia, sem depender do Spotify, en
 open dist/Lyricz.app --args --demo --preview
 ```
 
-A demonstração usa preferências separadas. Encerre e abra o aplicativo sem argumentos para voltar ao Spotify real.
+A demonstração usa preferências separadas. Encerre e abra o aplicativo sem argumentos para voltar aos players reais.
 
 ```text
 Sources/LyricsCore/        Letras, sincronização, paletas e cliente LRCLIB
-Sources/SpotifyLyricsBar/  Interface, estado do app e integração com Spotify
+Sources/SpotifyLyricsBar/  Interface, estado do app e integração com os players
 Tests/                    Testes do núcleo e do modelo do aplicativo
 Resources/                Configuração e permissões do bundle
 scripts/                  Build do aplicativo e geração do ícone
@@ -224,4 +240,4 @@ dist/                     Aplicativo gerado, fora do controle de versão
 
 O identificador do app continua sendo `com.local.spotifylyricsbar` para preservar os dados de instalações anteriores ao nome Lyricz.
 
-As letras são fornecidas pelo [LRCLIB](https://lrclib.net/docs). O Lyricz é um projeto independente, sem afiliação com o Spotify.
+As letras são fornecidas pelo [LRCLIB](https://lrclib.net/docs). O Lyricz é um projeto independente, sem afiliação com o Spotify ou a Apple.

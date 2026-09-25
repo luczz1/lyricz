@@ -21,7 +21,17 @@ actor ArtworkService {
         let (data, response) = try await URLSession.shared.data(for: request)
         try Task.checkCancellation()
         guard let http = response as? HTTPURLResponse, http.statusCode == 200,
-              data.count <= 8 * 1024 * 1024,
+              data.count <= 8 * 1024 * 1024 else { return nil }
+        guard let artwork = try decode(data) else { return nil }
+        cache[url] = artwork
+        order.removeAll { $0 == url }
+        order.append(url)
+        if order.count > 24 { cache.removeValue(forKey: order.removeFirst()) }
+        return artwork
+    }
+
+    func decode(_ data: Data) throws -> AlbumArtwork? {
+        guard data.count <= 8 * 1024 * 1024,
               let source = CGImageSourceCreateWithData(data as CFData, nil),
               let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, [
                 kCGImageSourceCreateThumbnailFromImageAlways: true,
@@ -47,10 +57,6 @@ actor ArtworkService {
         guard CGImageDestinationFinalize(destination) else { return nil }
         try Task.checkCancellation()
         let artwork = AlbumArtwork(png: png as Data, palette: AlbumPalette.extract(rgba: pixels))
-        cache[url] = artwork
-        order.removeAll { $0 == url }
-        order.append(url)
-        if order.count > 24 { cache.removeValue(forKey: order.removeFirst()) }
         return artwork
     }
 }

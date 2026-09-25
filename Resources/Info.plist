@@ -8,13 +8,13 @@
     <key>CFBundleIdentifier</key><string>com.local.spotifylyricsbar</string>
     <key>CFBundleName</key><string>Lyricz</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>1.4.0</string>
-    <key>CFBundleVersion</key><string>9</string>
+    <key>CFBundleShortVersionString</key><string>1.5.0</string>
+    <key>CFBundleVersion</key><string>10</string>
     <key>CFBundleIconFile</key><string>AppIcon</string>
     <key>LSMinimumSystemVersion</key><string>13.0</string>
     <key>LSUIElement</key><true/>
     <key>NSHighResolutionCapable</key><true/>
     <key>NSAppleEventsUsageDescription</key>
-    <string>O Lyricz precisa ler a música atual e a posição no Spotify para sincronizar a letra e oferecer controles de reprodução.</string>
+    <string>O Lyricz precisa ler a música atual e a posição no Spotify ou Apple Music para sincronizar a letra e oferecer controles de reprodução.</string>
 </dict>
 </plist>

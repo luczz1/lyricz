@@ -55,7 +55,7 @@ struct LyricsView: View {
                 Text("DEMO").font(.system(size: 9, weight: .bold)).foregroundStyle(accent)
             } else if model.connection == .connected {
                 Circle().fill(accent).frame(width: 5, height: 5)
-                Text("Spotify").font(.system(size: 11)).foregroundStyle(.white.opacity(0.55))
+                Text(model.activePlayer?.name ?? "Player").font(.system(size: 11)).foregroundStyle(.white.opacity(0.55))
             }
             Menu {
                 Toggle("Letra flutuante", isOn: $model.floatingLyrics)
@@ -64,7 +64,11 @@ struct LyricsView: View {
                     showVersions = true; showFavorites = false; showSettings = false; model.searchVersions()
                 }.disabled(model.track == nil)
                 Divider()
-                Button("Abrir Spotify", action: model.openSpotify)
+                Picker("Player", selection: $model.playerPreference) {
+                    ForEach(PlayerPreference.allCases) { Text($0.name).tag($0) }
+                }
+                Button("Abrir Spotify") { model.openPlayer(.spotify) }
+                Button("Abrir Apple Music") { model.openPlayer(.appleMusic) }
                 Button("Reconectar", action: model.reconnect)
                 Button("Buscar letra novamente", action: model.refreshLyrics).disabled(model.track == nil)
                 Divider()
@@ -236,23 +240,23 @@ struct LyricsView: View {
         switch model.connection {
         case .permissionDenied:
             message(icon: "lock.open", title: "Uma permissão e pronto",
-                    detail: "Em Privacidade e Segurança → Automação, permita que o Lyricz controle o Spotify.",
+                    detail: "Em Privacidade e Segurança → Automação, permita que o Lyricz controle o \(model.playerName).",
                     action: "Abrir Ajustes do Sistema", perform: model.openAutomationSettings)
             Button("Já permiti · reconectar", action: model.reconnect).buttonStyle(.plain)
                 .font(.system(size: 12)).foregroundStyle(accent).padding(.bottom, 35)
-        case .spotifyClosed:
+        case .playerClosed:
             message(icon: "headphones", title: "Sua próxima música,\ncom todas as palavras.",
-                    detail: "Abra o Spotify neste Mac e dê play.\nA letra acompanha você por aqui.",
-                    action: "Abrir Spotify", perform: model.openSpotify)
+                    detail: "Abra o \(model.playerName) neste Mac e dê play.\nA letra acompanha você por aqui.",
+                    action: "Abrir \(model.playerPreference.source?.name ?? model.activePlayer?.name ?? "Spotify")", perform: model.openPreferredPlayer)
         case .failure(let error):
             message(icon: "antenna.radiowaves.left.and.right.slash", title: "Vamos reconectar?",
                     detail: error, action: "Tentar novamente", perform: model.reconnect)
         case .connecting:
-            message(icon: "waveform", title: "Conectando ao Spotify", detail: "Se o macOS pedir, permita o acesso ao Spotify.")
+            message(icon: "waveform", title: "Conectando ao player", detail: "Se o macOS pedir, permita o acesso ao \(model.playerName).")
         default:
             message(icon: "music.note", title: "Dê play em uma música",
                     detail: "A letra aparece assim que uma faixa começar. Anúncios e podcasts não têm letras.",
-                    action: "Abrir Spotify", perform: model.openSpotify)
+                    action: "Abrir \(model.playerPreference.source?.name ?? model.activePlayer?.name ?? "Spotify")", perform: model.openPreferredPlayer)
         }
     }
 
@@ -260,6 +264,11 @@ struct LyricsView: View {
         ScrollView {
           VStack(alignment: .leading, spacing: 20) {
             Text("Do seu jeito").font(.system(size: 21, weight: .semibold))
+            Picker("Player", selection: $model.playerPreference) {
+                ForEach(PlayerPreference.allCases) { Text($0.name).tag($0) }
+            }
+            Text("No automático, acompanha quem começar a tocar. A escolha manual mantém o player selecionado.")
+                .font(.caption).foregroundStyle(.secondary)
             Toggle("Usar cores da capa", isOn: $model.useAlbumColors).toggleStyle(.switch).tint(accent)
             VStack(alignment: .leading, spacing: 8) {
                 HStack { Text("Intensidade das cores"); Spacer(); Text("\(Int(model.colorIntensity * 100))%").monospacedDigit() }
@@ -317,7 +326,7 @@ struct LyricsView: View {
                 Toggle("Iniciar junto com o Mac", isOn: Binding(get: { model.launchAtLogin }, set: { model.setLaunchAtLogin($0) }))
                     .toggleStyle(.switch).tint(accent).disabled(model.isDemo || model.updatingLogin)
                 if model.isDemo {
-                    Text("Disponível ao usar o Spotify real.").foregroundStyle(.secondary)
+                    Text("Disponível fora da demonstração.").foregroundStyle(.secondary)
                 } else if model.loginNeedsApproval {
                     Text("Aguardando liberação em Itens de Início do macOS.").foregroundStyle(.orange)
                     Button("Abrir Itens de Início", action: model.openLoginSettings).buttonStyle(.plain).foregroundStyle(accent)

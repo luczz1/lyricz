@@ -4,7 +4,7 @@ import LyricsCore
 import ServiceManagement
 
 enum ConnectionState: Equatable {
-    case connecting, spotifyClosed, waiting, connected, permissionDenied, failure(String)
+    case connecting, playerClosed, waiting, connected, permissionDenied, failure(String)
 }
 
 enum LyricsState: Equatable {
@@ -130,7 +130,23 @@ final class PlayerModel: ObservableObject {
     private let offsetStore: TrackOffsetStore
     private var restoringOffset = false
     private var playbackRevision = 0
-    private let bridge = SpotifyBridge()
+    private let bridges = Dictionary(uniqueKeysWithValues: PlayerSource.allCases.map { ($0, PlayerBridge(source: $0)) })
+    @Published var playerPreference: PlayerPreference = .automatic {
+        didSet {
+            defaults.set(playerPreference.rawValue, forKey: "playerPreference")
+            if oldValue != playerPreference {
+                playbackRevision += 1; previouslyPlaying = []
+                if !isDemo { activePlayer = playerPreference.source; clearPlayback(.connecting) }
+                reconnect()
+            }
+        }
+    }
+    @Published private(set) var activePlayer: PlayerSource?
+    @Published private(set) var permissionPlayer: PlayerSource?
+    private var deniedPlayers: Set<PlayerSource> = []
+    private var previouslyPlaying: Set<PlayerSource> = []
+    var playerName: String { (playerPreference.source ?? activePlayer ?? permissionPlayer)?.name ?? "Spotify ou Apple Music" }
+    private var bridge: PlayerBridge { bridges[playerPreference.source ?? activePlayer ?? .spotify]! }
     private let lyricsClient = LyricsClient()
     private let artworkService = ArtworkService()
     private var artworkTask: Task<Void, Never>?
@@ -147,6 +163,7 @@ final class PlayerModel: ObservableObject {
         let defaults = providedDefaults ?? (demo ? UserDefaults(suiteName: "com.local.spotifylyricsbar.demo")! : .standard)
         self.defaults = defaults
         offsetStore = TrackOffsetStore(defaults: defaults)
+        playerPreference = defaults.string(forKey: "playerPreference").flatMap(PlayerPreference.init(rawValue:)) ?? .automatic
         colorIntensity = min(1, max(0, defaults.object(forKey: "colorIntensity") as? Double ?? 1))
         favorites = defaults.data(forKey: "favoriteExcerpts").flatMap { try? JSONDecoder().decode([FavoriteExcerpt].self, from: $0) } ?? []
         chosenVersions = defaults.data(forKey: "chosenLyricsVersions").flatMap { try? JSONDecoder().decode([String: LyricsVersion].self, from: $0) } ?? [:]
@@ -182,7 +199,7 @@ final class PlayerModel: ObservableObject {
 
     var barTitle: String {
         guard let track else {
-            return connection == .permissionDenied ? "Permitir Spotify" : "Lyricz"
+            return connection == .permissionDenied ? "Permitir \(playerName)" : "Lyricz"
         }
         switch lyricMoment {
         case .words(let text): return text
@@ -230,12 +247,13 @@ final class PlayerModel: ObservableObject {
             updateClock()
             return
         }
+        let bridge = self.bridge
         isSeeking = true
         playbackRevision += 1
         Task {
             do {
                 let accepted = try await bridge.seek(to: target, trackID: track.id)
-                if accepted, self.track?.id == track.id {
+                if accepted, self.track?.id == track.id, self.activePlayer == bridge.source {
                     snapshot = PlaybackSnapshot(track: track, isPlaying: isPlaying, position: target)
                     updateClock()
                     commandError = nil
@@ -251,6 +269,7 @@ final class PlayerModel: ObservableObject {
     func reconnect() {
         guard !isDemo else { return }
         pollTask?.cancel()
+        deniedPlayers = []; permissionPlayer = nil
         connection = .connecting
         startPolling()
     }
@@ -259,13 +278,14 @@ final class PlayerModel: ObservableObject {
         if let track, !isDemo { loadLyrics(for: track, force: true) }
     }
 
-    func openSpotify() {
-        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.spotify.client") else {
-            commandError = "Instale o Spotify para macOS em spotify.com/download."
-            return
+    func openPlayer(_ source: PlayerSource) {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: source.bundleID) else {
+            commandError = "Instale o \(source.name) para usar este player."; return
         }
         NSWorkspace.shared.openApplication(at: url, configuration: .init())
     }
+
+    func openPreferredPlayer() { openPlayer(playerPreference.source ?? activePlayer ?? .spotify) }
 
     func openAutomationSettings() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation") {
@@ -273,7 +293,7 @@ final class PlayerModel: ObservableObject {
         }
     }
 
-    func control(_ command: SpotifyBridge.Command) {
+    func control(_ command: PlayerBridge.Command) {
         guard !commandInFlight, !isSeeking else { return }
         if isDemo {
             if let snapshot {
@@ -284,6 +304,7 @@ final class PlayerModel: ObservableObject {
             }
             return
         }
+        let bridge = self.bridge
         commandInFlight = true
         Task {
             defer { commandInFlight = false }
@@ -304,34 +325,48 @@ final class PlayerModel: ObservableObject {
     }
 
     private func poll() async {
-        // Do not repeatedly prompt after the user has denied Automation permission.
-        guard connection != .permissionDenied, !isSeeking else { return }
+        guard !isSeeking else { return }
         let revision = playbackRevision
-        guard !NSRunningApplication.runningApplications(withBundleIdentifier: "com.spotify.client").isEmpty else {
-            clearPlayback(.spotifyClosed)
+        let candidates = playerPreference.source.map { [$0] } ?? PlayerSource.allCases
+        var readings: [PlayerSource: PlaybackSnapshot] = [:]
+        var running = false
+        var failure: String?
+        for source in candidates {
+            guard !NSRunningApplication.runningApplications(withBundleIdentifier: source.bundleID).isEmpty else { continue }
+            running = true
+            guard !deniedPlayers.contains(source) else { continue }
+            do {
+                if let reading = try await bridges[source]!.snapshot() { readings[source] = reading }
+            } catch PlayerError.automationDenied(let denied) {
+                deniedPlayers.insert(denied)
+            } catch { failure = error.localizedDescription }
+            guard !Task.isCancelled, revision == playbackRevision else { return }
+        }
+        let selected = playerPreference.source ?? PlayerSelection.choose(
+            readings: readings, current: activePlayer, previouslyPlaying: previouslyPlaying)
+        previouslyPlaying = Set(readings.filter { $0.value.isPlaying }.map(\.key))
+        permissionPlayer = candidates.first { deniedPlayers.contains($0) }
+        guard let selected, let reading = readings[selected] else {
+            activePlayer = playerPreference.source
+            if !running { clearPlayback(.playerClosed) }
+            else if permissionPlayer != nil { clearPlayback(.permissionDenied) }
+            else if let failure { clearPlayback(.failure(failure)) }
+            else { clearPlayback(.waiting) }
             return
         }
-        do {
-            let reading = try await bridge.snapshot()
-            guard !Task.isCancelled, revision == playbackRevision else { return }
-            guard let reading else { clearPlayback(.waiting); return }
-            let changed = track != reading.track
-            snapshot = reading
-            track = reading.track
-            isPlaying = reading.isPlaying
-            connection = .connected
-            if changed {
-                versionsTask?.cancel(); versions = []; versionsError = nil; searchingVersions = false
-                loadLyrics(for: reading.track)
-                loadArtwork(for: reading.track)
-                restoreOffset(for: reading.track)
-            }
-            updateClock()
-        } catch {
-            guard !Task.isCancelled, revision == playbackRevision else { return }
-            if case SpotifyError.automationDenied = error { clearPlayback(.permissionDenied) }
-            else { clearPlayback(.failure(error.localizedDescription)) }
+        let changed = track != reading.track || activePlayer != selected
+        activePlayer = selected
+        snapshot = reading
+        track = reading.track
+        isPlaying = reading.isPlaying
+        connection = .connected
+        if changed {
+            versionsTask?.cancel(); versions = []; versionsError = nil; searchingVersions = false
+            loadLyrics(for: reading.track)
+            loadArtwork(for: reading.track)
+            restoreOffset(for: reading.track)
         }
+        updateClock()
     }
 
     private func clearPlayback(_ state: ConnectionState) {
@@ -353,6 +388,25 @@ final class PlayerModel: ObservableObject {
     }
 
     private func loadArtwork(for track: Track) {
+        if activePlayer == .appleMusic {
+            artworkTask?.cancel(); artworkURL = nil; albumImage = nil; albumPalette = .fallback
+            let music = bridges[.appleMusic]!
+            artworkTask = Task { [weak self, artworkService] in
+                do {
+                    let data = try await music.artwork(trackID: track.id)
+                    let artwork: AlbumArtwork?
+                    if let data { artwork = try await artworkService.decode(data) } else { artwork = nil }
+                    guard !Task.isCancelled, let self, self.track?.id == track.id else { return }
+                    self.albumImage = artwork.flatMap { NSImage(data: $0.png) }
+                    self.albumPalette = artwork?.palette ?? .fallback
+                    self.artworkTask = nil
+                } catch {
+                    guard !Task.isCancelled, let self, self.track?.id == track.id else { return }
+                    self.artworkTask = nil
+                }
+            }
+            return
+        }
         guard artworkURL != track.artworkURL || (albumImage == nil && artworkTask == nil) else { return }
         artworkTask?.cancel()
         artworkURL = track.artworkURL
