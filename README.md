@@ -20,7 +20,7 @@ Da esquerda para a direita: **letra sincronizada**, **trechos favoritos** e **aj
 
 ### Baixar o app pronto
 
-**Quer instalar sem compilar? [Baixe o Lyricz 1.6.0 para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.6.0/Lyricz-1.6.0-macOS-AppleSilicon.zip).**
+**Quer instalar sem compilar? [Baixe o Lyricz 1.6.1 para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.6.1/Lyricz-1.6.1-macOS-AppleSilicon.zip).**
 
 1. Baixe o ZIP e dê dois cliques para extrair.
 2. Arraste **Lyricz.app** para **Aplicativos**.
@@ -92,7 +92,7 @@ Para encerrar o aplicativo, abra **… → Sair do Lyricz**.
 
 ### Idioma da interface
 
-O Lyricz usa o primeiro idioma disponível nas preferências do macOS entre português, inglês e espanhol. Se nenhum dos três estiver na lista, o app aparece em português. Ao mudar o idioma do Mac, feche e abra o Lyricz para atualizar a interface. A letra e os dados da música não são traduzidos.
+O Lyricz usa o primeiro idioma disponível nas preferências do macOS entre português, inglês e espanhol. Se nenhum dos três estiver na lista, o app aparece em inglês. Ao mudar o idioma do Mac, feche e abra o Lyricz para atualizar a interface. A letra e os dados da música não são traduzidos.
 
 ### Spotify, Apple Music e troca automática
 

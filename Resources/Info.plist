@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleDevelopmentRegion</key><string>pt-BR</string>
+    <key>CFBundleDevelopmentRegion</key><string>en</string>
     <key>CFBundleLocalizations</key>
     <array><string>pt-BR</string><string>en</string><string>es</string></array>
     <key>CFBundleDisplayName</key><string>Lyricz</string>
@@ -10,13 +10,13 @@
     <key>CFBundleIdentifier</key><string>com.local.spotifylyricsbar</string>
     <key>CFBundleName</key><string>Lyricz</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>1.6.0</string>
-    <key>CFBundleVersion</key><string>11</string>
+    <key>CFBundleShortVersionString</key><string>1.6.1</string>
+    <key>CFBundleVersion</key><string>12</string>
     <key>CFBundleIconFile</key><string>AppIcon</string>
     <key>LSMinimumSystemVersion</key><string>13.0</string>
     <key>LSUIElement</key><true/>
     <key>NSHighResolutionCapable</key><true/>
     <key>NSAppleEventsUsageDescription</key>
-    <string>O Lyricz precisa ler a música atual e a posição no Spotify ou Apple Music para sincronizar a letra e oferecer controles de reprodução.</string>
+    <string>Lyricz needs access to the current song and playback position in Spotify or Apple Music to sync lyrics and provide playback controls.</string>
 </dict>
 </plist>
