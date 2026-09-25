@@ -1,14 +1,18 @@
 import Foundation
 
+private func coreL(_ key: String) -> String {
+    NSLocalizedString(key, tableName: "Localizable", bundle: .main, value: key, comment: "")
+}
+
 public enum LyricsServiceError: LocalizedError {
     case invalidResponse
     case http(Int)
 
     public var errorDescription: String? {
         switch self {
-        case .invalidResponse: return "O serviço de letras enviou uma resposta inválida."
-        case .http(429): return "O serviço de letras está ocupado. Tente novamente em instantes."
-        case .http(let code): return "Não foi possível consultar as letras (HTTP \(code))."
+        case .invalidResponse: return coreL("O serviço de letras enviou uma resposta inválida.")
+        case .http(429): return coreL("O serviço de letras está ocupado. Tente novamente em instantes.")
+        case .http(let code): return String(format: coreL("Não foi possível consultar as letras (HTTP %d)."), code)
         }
     }
 }

@@ -16,6 +16,7 @@ if [ -f "$APP_DIR/Contents/MacOS/SpotifyLyricsBar" ] && [ ! -e "$APP_DIR/Content
 fi
 cp "$BIN_DIR/Lyricz" "$APP_DIR/Contents/MacOS/Lyricz"
 cp Resources/Info.plist "$APP_DIR/Contents/Info.plist"
+cp -R Resources/*.lproj "$APP_DIR/Contents/Resources/"
 
 swift scripts/make-icon.swift "$PROJECT_DIR/.build/AppIcon.iconset"
 iconutil -c icns "$PROJECT_DIR/.build/AppIcon.iconset" -o "$APP_DIR/Contents/Resources/AppIcon.icns"

@@ -7,7 +7,7 @@ enum PlayerError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .automationDenied(let player): return "Permita que o Lyricz acesse o \(player.name) em Ajustes do Sistema → Privacidade e Segurança → Automação."
+        case .automationDenied(let player): return LF("Permita que o Lyricz acesse o %@ em Ajustes do Sistema → Privacidade e Segurança → Automação.", player.name)
         case .script(let message): return message
         }
     }
@@ -90,7 +90,7 @@ final class PlayerBridge: @unchecked Sendable {
             queue.async {
                 autoreleasepool {
                     guard let script = NSAppleScript(source: source) else {
-                        continuation.resume(throwing: PlayerError.script("Não foi possível preparar a conexão com o player."))
+                        continuation.resume(throwing: PlayerError.script(L("Não foi possível preparar a conexão com o player.")))
                         return
                     }
                     var error: NSDictionary?
@@ -101,7 +101,7 @@ final class PlayerBridge: @unchecked Sendable {
                             continuation.resume(throwing: PlayerError.automationDenied(self.source))
                         } else {
                             continuation.resume(throwing: PlayerError.script(
-                                error[NSAppleScript.errorMessage] as? String ?? "O player não respondeu. Tente novamente."))
+                                error[NSAppleScript.errorMessage] as? String ?? L("O player não respondeu. Tente novamente.")))
                         }
                         return
                     }

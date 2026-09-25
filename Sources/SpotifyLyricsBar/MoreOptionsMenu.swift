@@ -11,12 +11,12 @@ struct MoreOptionsMenu: NSViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     func makeNSView(context: Context) -> NSButton {
-        let button = NSButton(image: NSImage(systemSymbolName: "ellipsis", accessibilityDescription: "Mais opções")!,
+        let button = NSButton(image: NSImage(systemSymbolName: "ellipsis", accessibilityDescription: L("Mais opções"))!,
                               target: context.coordinator, action: #selector(Coordinator.openMenu(_:)))
         button.isBordered = false
         button.imagePosition = .imageOnly
-        button.setAccessibilityLabel("Mais opções")
-        button.toolTip = "Mais opções"
+        button.setAccessibilityLabel(L("Mais opções"))
+        button.toolTip = L("Mais opções")
         return button
     }
 
@@ -50,28 +50,28 @@ struct MoreOptionsMenu: NSViewRepresentable {
                 item.isEnabled = enabled
                 target.addItem(item)
             }
-            add("Letra flutuante", to: menu, checked: model.floatingLyrics) { model.floatingLyrics.toggle() }
-            add("Trechos favoritos", to: menu, action: parent.showFavorites)
-            add("Escolher outra versão da letra", to: menu, enabled: model.track != nil, action: parent.showVersions)
+            add(L("Letra flutuante"), to: menu, checked: model.floatingLyrics) { model.floatingLyrics.toggle() }
+            add(L("Trechos favoritos"), to: menu, action: parent.showFavorites)
+            add(L("Escolher outra versão da letra"), to: menu, enabled: model.track != nil, action: parent.showVersions)
             menu.addItem(.separator())
-            let players = NSMenu(title: "Player")
+            let players = NSMenu(title: L("Player"))
             players.autoenablesItems = false
             for preference in PlayerPreference.allCases {
-                add(preference.name, to: players, checked: model.playerPreference == preference) {
+                add(playerPreferenceName(preference), to: players, checked: model.playerPreference == preference) {
                     model.playerPreference = preference
                 }
             }
-            let playerItem = NSMenuItem(title: "Player", action: nil, keyEquivalent: "")
+            let playerItem = NSMenuItem(title: L("Player"), action: nil, keyEquivalent: "")
             playerItem.submenu = players
             menu.addItem(playerItem)
-            add("Abrir Spotify", to: menu) { model.openPlayer(.spotify) }
-            add("Abrir Apple Music", to: menu) { model.openPlayer(.appleMusic) }
-            add("Reconectar", to: menu, action: model.reconnect)
-            add("Buscar letra novamente", to: menu, enabled: model.track != nil, action: model.refreshLyrics)
+            add(L("Abrir Spotify"), to: menu) { model.openPlayer(.spotify) }
+            add(L("Abrir Apple Music"), to: menu) { model.openPlayer(.appleMusic) }
+            add(L("Reconectar"), to: menu, action: model.reconnect)
+            add(L("Buscar letra novamente"), to: menu, enabled: model.track != nil, action: model.refreshLyrics)
             menu.addItem(.separator())
-            add("Mostrar frase na barra", to: menu, checked: model.showLyricsInBar) { model.showLyricsInBar.toggle() }
+            add(L("Mostrar frase na barra"), to: menu, checked: model.showLyricsInBar) { model.showLyricsInBar.toggle() }
             menu.addItem(.separator())
-            add("Sair do Lyricz", to: menu) { NSApp.terminate(nil) }
+            add(L("Sair do Lyricz"), to: menu) { NSApp.terminate(nil) }
             menu.items.last?.keyEquivalent = "q"
             return menu
         }

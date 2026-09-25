@@ -4,6 +4,8 @@ Letras do Spotify e do Apple Music na barra de menus do Mac. O Lyricz acompanha 
 
 Ao clicar na barra, você encontra a letra completa, controles de reprodução e um painel com as cores da capa do álbum. Também dá para deixar a letra numa janela flutuante e salvar seus trechos favoritos.
 
+A interface acompanha o idioma do macOS em português, inglês ou espanhol. Os nomes das músicas e as letras aparecem no idioma original da faixa.
+
 ## Conheça a interface
 
 <p align="center">
@@ -18,7 +20,7 @@ Da esquerda para a direita: **letra sincronizada**, **trechos favoritos** e **aj
 
 ### Baixar o app pronto
 
-**Quer instalar sem compilar? [Baixe o Lyricz 1.5.0 para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.5.0/Lyricz-1.5.0-macOS-AppleSilicon.zip).**
+**Quer instalar sem compilar? [Baixe o Lyricz 1.6.0 para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.6.0/Lyricz-1.6.0-macOS-AppleSilicon.zip).**
 
 1. Baixe o ZIP e dê dois cliques para extrair.
 2. Arraste **Lyricz.app** para **Aplicativos**.
@@ -87,6 +89,10 @@ Não é necessário configurar uma conta de desenvolvedor do Spotify, chaves de 
 Para encerrar o aplicativo, abra **… → Sair do Lyricz**.
 
 ## Como usar
+
+### Idioma da interface
+
+O Lyricz usa o primeiro idioma disponível nas preferências do macOS entre português, inglês e espanhol. Se nenhum dos três estiver na lista, o app aparece em português. Ao mudar o idioma do Mac, feche e abra o Lyricz para atualizar a interface. A letra e os dados da música não são traduzidos.
 
 ### Spotify, Apple Music e troca automática
 

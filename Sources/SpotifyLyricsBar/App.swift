@@ -53,7 +53,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         if CommandLine.arguments.contains("--preview") {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 396, height: 628),
                                   styleMask: [.titled, .closable], backing: .buffered, defer: false)
-            window.title = "Lyricz · Preview"
+            window.title = L("Lyricz · Preview")
             window.isReleasedWhenClosed = false
             window.contentViewController = NSHostingController(rootView: LyricsView(model: model))
             window.center()
@@ -104,11 +104,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
                 guard response == .OK, let url = panel.url else { return }
                 do {
                     try data.write(to: url, options: .atomic)
-                    completion("Imagem salva.")
+                    completion(L("Imagem salva."))
                 } catch {
-                    completion("Não foi possível salvar: \(error.localizedDescription)")
+                    completion(LF("Não foi possível salvar: %@", error.localizedDescription))
                     let alert = NSAlert()
-                    alert.messageText = "Não foi possível salvar a imagem"
+                    alert.messageText = L("Não foi possível salvar a imagem")
                     alert.informativeText = error.localizedDescription
                     NSApp.activate(ignoringOtherApps: true)
                     alert.runModal()
@@ -124,7 +124,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 420, height: 200),
                                 styleMask: [.titled, .fullSizeContentView, .resizable, .nonactivatingPanel],
                                 backing: .buffered, defer: false)
-            panel.title = "Lyricz · Letra flutuante"
+            panel.title = L("Lyricz · Letra flutuante")
             panel.titleVisibility = .hidden
             panel.titlebarAppearsTransparent = true
             panel.isMovableByWindowBackground = true
@@ -150,7 +150,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
                           scroll: model.scrollLongLines, showText: !model.isBarCompact,
                           symbol: model.isBarCompact && model.showLyricsInBar ? "music.note" : "waveform",
                           speed: model.scrollSpeed)
-        button.toolTip = model.track.map { "\($0.title) — \($0.artist)\n\(model.currentText)" } ?? "Lyricz · Spotify e Apple Music"
+        button.toolTip = model.track.map { "\($0.title) — \($0.artist)\n\(model.currentText)" } ?? L("Lyricz · Spotify e Apple Music")
         button.setAccessibilityLabel(model.barTitle)
     }
 

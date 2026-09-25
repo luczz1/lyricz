@@ -145,7 +145,7 @@ final class PlayerModel: ObservableObject {
     @Published private(set) var permissionPlayer: PlayerSource?
     private var deniedPlayers: Set<PlayerSource> = []
     private var previouslyPlaying: Set<PlayerSource> = []
-    var playerName: String { (playerPreference.source ?? activePlayer ?? permissionPlayer)?.name ?? "Spotify ou Apple Music" }
+    var playerName: String { (playerPreference.source ?? activePlayer ?? permissionPlayer)?.name ?? L("Spotify ou Apple Music") }
     private var bridge: PlayerBridge { bridges[playerPreference.source ?? activePlayer ?? .spotify]! }
     private let lyricsClient = LyricsClient()
     private let artworkService = ArtworkService()
@@ -199,7 +199,7 @@ final class PlayerModel: ObservableObject {
 
     var barTitle: String {
         guard let track else {
-            return connection == .permissionDenied ? "Permitir \(playerName)" : "Lyricz"
+            return connection == .permissionDenied ? LF("Permitir %@", playerName) : "Lyricz"
         }
         switch lyricMoment {
         case .words(let text): return text
@@ -232,7 +232,7 @@ final class PlayerModel: ObservableObject {
                 } else if service.status != .notRegistered {
                     try await service.unregister()
                 }
-            } catch { loginError = "Não foi possível alterar o início automático: \(error.localizedDescription)" }
+            } catch { loginError = LF("Não foi possível alterar o início automático: %@", error.localizedDescription) }
         }
     }
 
@@ -258,7 +258,7 @@ final class PlayerModel: ObservableObject {
                     updateClock()
                     commandError = nil
                 } else {
-                    commandError = "A faixa mudou. Selecione um trecho da música atual."
+                    commandError = L("A faixa mudou. Selecione um trecho da música atual.")
                 }
             } catch { commandError = error.localizedDescription }
             isSeeking = false
@@ -280,7 +280,7 @@ final class PlayerModel: ObservableObject {
 
     func openPlayer(_ source: PlayerSource) {
         guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: source.bundleID) else {
-            commandError = "Instale o \(source.name) para usar este player."; return
+            commandError = LF("Instale o %@ para usar este player.", source.name); return
         }
         NSWorkspace.shared.openApplication(at: url, configuration: .init())
     }

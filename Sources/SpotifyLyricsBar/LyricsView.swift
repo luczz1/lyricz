@@ -33,7 +33,7 @@ struct LyricsView: View {
                     Text(error).font(.caption).foregroundStyle(.orange)
                     Spacer()
                     Button { model.commandError = nil } label: { Image(systemName: "xmark") }
-                        .buttonStyle(.plain).accessibilityLabel("Fechar aviso")
+                        .buttonStyle(.plain).accessibilityLabel(L("Fechar aviso"))
                 }.padding(.horizontal, 24).padding(.bottom, 10)
             }
             footer
@@ -52,7 +52,7 @@ struct LyricsView: View {
             Text("LYRICZ").font(.system(size: 10, weight: .bold, design: .rounded)).tracking(2.4)
             Spacer()
             if model.isDemo {
-                Text("DEMO").font(.system(size: 9, weight: .bold)).foregroundStyle(accent)
+                Text(L("DEMO")).font(.system(size: 9, weight: .bold)).foregroundStyle(accent)
             } else if model.connection == .connected {
                 Circle().fill(accent).frame(width: 5, height: 5)
                 Text(model.activePlayer?.name ?? "Player").font(.system(size: 11)).foregroundStyle(.white.opacity(0.55))
@@ -100,7 +100,7 @@ struct LyricsView: View {
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(surface).frame(width: 38, height: 38)
                         .background(accent, in: Circle())
-                }.buttonStyle(.plain).accessibilityLabel(model.isPlaying ? "Pausar" : "Reproduzir")
+                }.buttonStyle(.plain).accessibilityLabel(L(model.isPlaying ? "Pausar" : "Reproduzir"))
                 controlButton("forward.end.fill", label: "Próxima faixa") { model.control(.next) }
             }.padding(.top, 18)
             GeometryReader { geometry in
@@ -109,12 +109,12 @@ struct LyricsView: View {
                     Capsule().fill(accent.opacity(0.8))
                         .frame(width: geometry.size.width * min(1, max(0, model.position / max(1, track.duration))))
                 }
-            }.frame(height: 3).accessibilityLabel("Progresso da música")
-                .accessibilityValue("\(time(model.position)) de \(time(track.duration))")
+            }.frame(height: 3).accessibilityLabel(L("Progresso da música"))
+                .accessibilityValue(LF("%@ de %@", time(model.position), time(track.duration)))
             HStack {
                 Text(time(model.position))
                 Spacer()
-                Text(model.isPlaying ? "TOCANDO AGORA" : "EM PAUSA").font(.system(size: 8, weight: .medium)).tracking(1.5)
+                Text(L(model.isPlaying ? "TOCANDO AGORA" : "EM PAUSA")).font(.system(size: 8, weight: .medium)).tracking(1.5)
                 Spacer()
                 Text(time(track.duration))
             }.font(.system(size: 10, design: .monospaced)).foregroundStyle(.white.opacity(0.38))
@@ -126,28 +126,28 @@ struct LyricsView: View {
         case .idle, .loading:
             VStack(spacing: 14) {
                 ProgressView().controlSize(.small).tint(accent)
-                Text("Encontrando as palavras…").font(.system(size: 13)).foregroundStyle(.white.opacity(0.5))
+                Text(L("Encontrando as palavras…")).font(.system(size: 13)).foregroundStyle(.white.opacity(0.5))
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
         case .unavailable:
-            message(icon: "text.magnifyingglass", title: "Ainda sem letra por aqui",
-                    detail: "Não encontramos a letra desta versão no LRCLIB.", action: "Tentar novamente", perform: model.refreshLyrics)
+            message(icon: "text.magnifyingglass", title: L("Ainda sem letra por aqui"),
+                    detail: L("Não encontramos a letra desta versão no LRCLIB."), action: L("Tentar novamente"), perform: model.refreshLyrics)
         case .failure:
-            message(icon: "wifi.exclamationmark", title: "Não foi possível buscar a letra",
-                    detail: "Verifique sua conexão e tente novamente em instantes.", action: "Tentar novamente", perform: model.refreshLyrics)
+            message(icon: "wifi.exclamationmark", title: L("Não foi possível buscar a letra"),
+                    detail: L("Verifique sua conexão e tente novamente em instantes."), action: L("Tentar novamente"), perform: model.refreshLyrics)
         case .loaded(let lyrics):
             if lyrics.instrumental {
-                message(icon: "pianokeys", title: "Só a música", detail: "Esta faixa está marcada como instrumental.")
+                message(icon: "pianokeys", title: L("Só a música"), detail: L("Esta faixa está marcada como instrumental."))
             } else if lyrics.lines.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("LETRA SEM SINCRONIZAÇÃO").font(.system(size: 9, weight: .medium)).tracking(1.4).foregroundStyle(accent)
+                    Text(L("LETRA SEM SINCRONIZAÇÃO")).font(.system(size: 9, weight: .medium)).tracking(1.4).foregroundStyle(accent)
                     ScrollView {
                         VStack(alignment: .leading, spacing: 14) {
                             ForEach(Array(lyrics.plainText.components(separatedBy: "\n\n").enumerated()), id: \.offset) { _, stanza in
                                 Text(stanza).font(.system(size: 19, weight: .medium)).lineSpacing(9)
                                     .frame(maxWidth: .infinity, alignment: .leading).textSelection(.enabled)
                                     .contextMenu {
-                                        Button(model.isFavorite(stanza) ? "Remover dos favoritos" : "Favoritar trecho") { model.favorite(stanza) }
-                                        Button("Copiar trecho") { copyExcerpt(stanza) }
+                                        Button(L(model.isFavorite(stanza) ? "Remover dos favoritos" : "Favoritar trecho")) { model.favorite(stanza) }
+                                        Button(L("Copiar trecho")) { copyExcerpt(stanza) }
                                     }
                             }
                         }
@@ -162,14 +162,14 @@ struct LyricsView: View {
     private func syncedLyrics(_ lyrics: Lyrics) -> some View {
         VStack(spacing: 0) {
             HStack {
-                Text("NO RITMO DA MÚSICA").font(.system(size: 9, weight: .medium)).tracking(1.5).foregroundStyle(.white.opacity(0.4))
+                Text(L("NO RITMO DA MÚSICA")).font(.system(size: 9, weight: .medium)).tracking(1.5).foregroundStyle(.white.opacity(0.4))
                 Spacer()
                 Button { followLyrics.toggle() } label: {
                     HStack(spacing: 4) {
                         Image(systemName: followLyrics ? "scope" : "hand.draw")
-                        Text(followLyrics ? "Acompanhar" : "Leitura livre")
+                        Text(L(followLyrics ? "Acompanhar" : "Leitura livre"))
                     }.font(.system(size: 10)).foregroundStyle(followLyrics ? accent : .white.opacity(0.5))
-                }.buttonStyle(.plain).help("Ativar ou desativar a rolagem automática")
+                }.buttonStyle(.plain).help(L("Ativar ou desativar a rolagem automática"))
             }.padding(.horizontal, 24).padding(.top, 19).padding(.bottom, 10)
             ScrollViewReader { proxy in
                 ScrollView {
@@ -190,13 +190,13 @@ struct LyricsView: View {
                             }
                             .buttonStyle(.plain)
                             .disabled(model.isSeeking)
-                            .help("Ir para \(time(line.playbackPosition(offset: model.lyricOffset, duration: model.track?.duration ?? 0)))")
-                            .accessibilityLabel(line.isInstrumental ? "Trecho instrumental" : line.text)
-                            .accessibilityHint("Ir para este trecho da música")
+                            .help(LF("Ir para %@", time(line.playbackPosition(offset: model.lyricOffset, duration: model.track?.duration ?? 0))))
+                            .accessibilityLabel(line.isInstrumental ? L("Trecho instrumental") : line.text)
+                            .accessibilityHint(L("Ir para este trecho da música"))
                             .contextMenu {
                                 if !line.isInstrumental {
-                                    Button(model.isFavorite(line.text) ? "Remover dos favoritos" : "Favoritar trecho") { model.favorite(line.text) }
-                                    Button("Copiar trecho") { copyExcerpt(line.text) }
+                                    Button(L(model.isFavorite(line.text) ? "Remover dos favoritos" : "Favoritar trecho")) { model.favorite(line.text) }
+                                    Button(L("Copiar trecho")) { copyExcerpt(line.text) }
                                 }
                             }
                             .id(line.id)
@@ -224,99 +224,99 @@ struct LyricsView: View {
     @ViewBuilder private var connectionContent: some View {
         switch model.connection {
         case .permissionDenied:
-            message(icon: "lock.open", title: "Uma permissão e pronto",
-                    detail: "Em Privacidade e Segurança → Automação, permita que o Lyricz controle o \(model.playerName).",
-                    action: "Abrir Ajustes do Sistema", perform: model.openAutomationSettings)
-            Button("Já permiti · reconectar", action: model.reconnect).buttonStyle(.plain)
+            message(icon: "lock.open", title: L("Uma permissão e pronto"),
+                    detail: LF("Em Privacidade e Segurança → Automação, permita que o Lyricz controle o %@.", model.playerName),
+                    action: L("Abrir Ajustes do Sistema"), perform: model.openAutomationSettings)
+            Button(L("Já permiti · reconectar"), action: model.reconnect).buttonStyle(.plain)
                 .font(.system(size: 12)).foregroundStyle(accent).padding(.bottom, 35)
         case .playerClosed:
-            message(icon: "headphones", title: "Sua próxima música,\ncom todas as palavras.",
-                    detail: "Abra o \(model.playerName) neste Mac e dê play.\nA letra acompanha você por aqui.",
-                    action: "Abrir \(model.playerPreference.source?.name ?? model.activePlayer?.name ?? "Spotify")", perform: model.openPreferredPlayer)
+            message(icon: "headphones", title: L("Sua próxima música,\ncom todas as palavras."),
+                    detail: LF("Abra o %@ neste Mac e dê play.\nA letra acompanha você por aqui.", model.playerName),
+                    action: LF("Abrir %@", model.playerPreference.source?.name ?? model.activePlayer?.name ?? "Spotify"), perform: model.openPreferredPlayer)
         case .failure(let error):
-            message(icon: "antenna.radiowaves.left.and.right.slash", title: "Vamos reconectar?",
-                    detail: error, action: "Tentar novamente", perform: model.reconnect)
+            message(icon: "antenna.radiowaves.left.and.right.slash", title: L("Vamos reconectar?"),
+                    detail: error, action: L("Tentar novamente"), perform: model.reconnect)
         case .connecting:
-            message(icon: "waveform", title: "Conectando ao player", detail: "Se o macOS pedir, permita o acesso ao \(model.playerName).")
+            message(icon: "waveform", title: L("Conectando ao player"), detail: LF("Se o macOS pedir, permita o acesso ao %@.", model.playerName))
         default:
-            message(icon: "music.note", title: "Dê play em uma música",
-                    detail: "A letra aparece assim que uma faixa começar. Anúncios e podcasts não têm letras.",
-                    action: "Abrir \(model.playerPreference.source?.name ?? model.activePlayer?.name ?? "Spotify")", perform: model.openPreferredPlayer)
+            message(icon: "music.note", title: L("Dê play em uma música"),
+                    detail: L("A letra aparece assim que uma faixa começar. Anúncios e podcasts não têm letras."),
+                    action: LF("Abrir %@", model.playerPreference.source?.name ?? model.activePlayer?.name ?? "Spotify"), perform: model.openPreferredPlayer)
         }
     }
 
     private var settings: some View {
         ScrollView {
           VStack(alignment: .leading, spacing: 20) {
-            Text("Do seu jeito").font(.system(size: 21, weight: .semibold))
-            Picker("Player", selection: $model.playerPreference) {
-                ForEach(PlayerPreference.allCases) { Text($0.name).tag($0) }
+            Text(L("Do seu jeito")).font(.system(size: 21, weight: .semibold))
+            Picker(L("Player"), selection: $model.playerPreference) {
+                ForEach(PlayerPreference.allCases) { Text(playerPreferenceName($0)).tag($0) }
             }
-            Text("No automático, acompanha quem começar a tocar. A escolha manual mantém o player selecionado.")
+            Text(L("No automático, acompanha quem começar a tocar. A escolha manual mantém o player selecionado."))
                 .font(.caption).foregroundStyle(.secondary)
-            Toggle("Usar cores da capa", isOn: $model.useAlbumColors).toggleStyle(.switch).tint(accent)
+            Toggle(L("Usar cores da capa"), isOn: $model.useAlbumColors).toggleStyle(.switch).tint(accent)
             VStack(alignment: .leading, spacing: 8) {
-                HStack { Text("Intensidade das cores"); Spacer(); Text("\(Int(model.colorIntensity * 100))%").monospacedDigit() }
+                HStack { Text(L("Intensidade das cores")); Spacer(); Text("\(Int(model.colorIntensity * 100))%").monospacedDigit() }
                 Slider(value: $model.colorIntensity, in: 0...1, step: 0.05).tint(accent)
-                    .accessibilityLabel("Intensidade das cores da capa")
-                HStack { Text("Discreto"); Spacer(); Text("Vivo") }.foregroundStyle(.secondary)
+                    .accessibilityLabel(L("Intensidade das cores da capa"))
+                HStack { Text(L("Discreto")); Spacer(); Text(L("Vivo")) }.foregroundStyle(.secondary)
             }.disabled(!model.useAlbumColors)
-            Toggle("Letra flutuante", isOn: $model.floatingLyrics).toggleStyle(.switch).tint(accent)
-            Toggle("Frase atual na barra de menus", isOn: $model.showLyricsInBar).toggleStyle(.switch).tint(accent)
-            Toggle("Deslizar frases longas", isOn: $model.scrollLongLines).toggleStyle(.switch).tint(accent)
+            Toggle(L("Letra flutuante"), isOn: $model.floatingLyrics).toggleStyle(.switch).tint(accent)
+            Toggle(L("Frase atual na barra de menus"), isOn: $model.showLyricsInBar).toggleStyle(.switch).tint(accent)
+            Toggle(L("Deslizar frases longas"), isOn: $model.scrollLongLines).toggleStyle(.switch).tint(accent)
                 .disabled(!model.showLyricsInBar)
             VStack(alignment: .leading, spacing: 9) {
                 HStack {
-                    Text("Velocidade da letra")
+                    Text(L("Velocidade da letra"))
                     Spacer()
                     Text("\(Int(model.scrollSpeed)) pt/s").foregroundStyle(.secondary).monospacedDigit()
                 }
                 Slider(value: $model.scrollSpeed, in: MarqueeMotion.speedRange, step: 1).tint(accent)
-                    .accessibilityLabel("Velocidade de deslizamento da letra")
+                    .accessibilityLabel(L("Velocidade de deslizamento da letra"))
                 HStack {
-                    Text("Mais lento")
+                    Text(L("Mais lento"))
                     Spacer()
-                    Text("Mais rápido")
+                    Text(L("Mais rápido"))
                 }.font(.system(size: 10)).foregroundStyle(.white.opacity(0.45))
-                Button("Restaurar velocidade padrão") { model.scrollSpeed = MarqueeMotion.defaultSpeed }
+                Button(L("Restaurar velocidade padrão")) { model.scrollSpeed = MarqueeMotion.defaultSpeed }
                     .buttonStyle(.plain).foregroundStyle(accent)
             }.disabled(!model.showLyricsInBar || !model.scrollLongLines)
-            Toggle("Compactar nos instrumentais", isOn: $model.compactInstrumentals).toggleStyle(.switch).tint(accent)
+            Toggle(L("Compactar nos instrumentais"), isOn: $model.compactInstrumentals).toggleStyle(.switch).tint(accent)
                 .disabled(!model.showLyricsInBar)
             VStack(alignment: .leading, spacing: 9) {
                 HStack {
-                    Text("Largura na barra")
+                    Text(L("Largura na barra"))
                     Spacer()
                     Text("\(Int(model.barWidth)) pt").foregroundStyle(.secondary).monospacedDigit()
                 }
                 Slider(value: $model.barWidth, in: 120...420, step: 10).tint(accent)
-                    .accessibilityLabel("Largura do texto na barra de menus")
-                Text("O tamanho da barra é aplicado ao fechar este painel.")
+                    .accessibilityLabel(L("Largura do texto na barra de menus"))
+                Text(L("O tamanho da barra é aplicado ao fechar este painel."))
                     .font(.system(size: 11)).foregroundStyle(.white.opacity(0.45))
             }
             VStack(alignment: .leading, spacing: 9) {
                 HStack {
-                    Text("Ajuste de sincronização")
+                    Text(L("Ajuste de sincronização"))
                     Spacer()
                     Text(String(format: "%+.2f s", model.lyricOffset)).foregroundStyle(accent).monospacedDigit()
                 }
                 Slider(value: $model.lyricOffset, in: -5...5, step: 0.25).tint(accent)
-                    .accessibilityLabel("Ajuste de tempo da letra")
-                Text("Positivo adianta; negativo atrasa. Salvo automaticamente para esta música, inclusive ao reabrir o app.")
+                    .accessibilityLabel(L("Ajuste de tempo da letra"))
+                Text(L("Positivo adianta; negativo atrasa. Salvo automaticamente para esta música, inclusive ao reabrir o app."))
                     .font(.system(size: 11)).foregroundStyle(.white.opacity(0.45))
-                Button("Restaurar sincronização") { model.lyricOffset = 0 }.buttonStyle(.plain).foregroundStyle(accent)
+                Button(L("Restaurar sincronização")) { model.lyricOffset = 0 }.buttonStyle(.plain).foregroundStyle(accent)
             }.disabled(model.track == nil)
             Divider()
             VStack(alignment: .leading, spacing: 9) {
-                Toggle("Iniciar junto com o Mac", isOn: Binding(get: { model.launchAtLogin }, set: { model.setLaunchAtLogin($0) }))
+                Toggle(L("Iniciar junto com o Mac"), isOn: Binding(get: { model.launchAtLogin }, set: { model.setLaunchAtLogin($0) }))
                     .toggleStyle(.switch).tint(accent).disabled(model.isDemo || model.updatingLogin)
                 if model.isDemo {
-                    Text("Disponível fora da demonstração.").foregroundStyle(.secondary)
+                    Text(L("Disponível fora da demonstração.")).foregroundStyle(.secondary)
                 } else if model.loginNeedsApproval {
-                    Text("Aguardando liberação em Itens de Início do macOS.").foregroundStyle(.orange)
-                    Button("Abrir Itens de Início", action: model.openLoginSettings).buttonStyle(.plain).foregroundStyle(accent)
+                    Text(L("Aguardando liberação em Itens de Início do macOS.")).foregroundStyle(.orange)
+                    Button(L("Abrir Itens de Início"), action: model.openLoginSettings).buttonStyle(.plain).foregroundStyle(accent)
                 } else {
-                    Text("O Lyricz aparece na barra de menus ao entrar na sua conta do Mac.").foregroundStyle(.secondary)
+                    Text(L("O Lyricz aparece na barra de menus ao entrar na sua conta do Mac.")).foregroundStyle(.secondary)
                 }
                 if let error = model.loginError { Text(error).foregroundStyle(.orange) }
             }.font(.system(size: 11))
@@ -330,8 +330,8 @@ struct LyricsView: View {
             HStack(spacing: 5) {
                 Image(systemName: model.lyrics?.lines.isEmpty == false ? "checkmark.circle.fill" : "text.quote")
                     .foregroundStyle(model.lyrics?.lines.isEmpty == false ? accent.opacity(0.7) : .white.opacity(0.4))
-                Text(model.lyrics?.lines.isEmpty == false ? "Sincronizado" : "Letras por")
-                Text("·").foregroundStyle(.white.opacity(0.2))
+                Text(L(model.lyrics?.lines.isEmpty == false ? "Sincronizado" : "Letras por"))
+                Text(L("·")).foregroundStyle(.white.opacity(0.2))
                 Link("LRCLIB", destination: URL(string: "https://lrclib.net")!).foregroundStyle(.white.opacity(0.6))
             }.font(.system(size: 10)).foregroundStyle(.white.opacity(0.4))
             Spacer()
@@ -339,7 +339,7 @@ struct LyricsView: View {
                 Button { model.favorite(text) } label: {
                     Image(systemName: model.isFavorite(text) ? "heart.fill" : "heart")
                         .foregroundStyle(accent).frame(width: 25, height: 26)
-                }.buttonStyle(.plain).help("Favoritar frase atual").accessibilityLabel("Favoritar frase atual")
+                }.buttonStyle(.plain).help(L("Favoritar frase atual")).accessibilityLabel(L("Favoritar frase atual"))
             }
             Button {
                 if showFavorites || showVersions { showFavorites = false; showVersions = false; showSettings = false }
@@ -348,7 +348,7 @@ struct LyricsView: View {
                 Image(systemName: (showSettings || showFavorites || showVersions) ? "text.alignleft" : "slider.horizontal.3")
                     .font(.system(size: 13)).foregroundStyle(showSettings ? accent : .white.opacity(0.6))
                     .frame(width: 28, height: 26)
-            }.buttonStyle(.plain).accessibilityLabel((showSettings || showFavorites || showVersions) ? "Voltar à letra" : "Ajustes")
+            }.buttonStyle(.plain).accessibilityLabel(L((showSettings || showFavorites || showVersions) ? "Voltar à letra" : "Ajustes"))
         }.padding(.horizontal, 24).padding(.vertical, 13)
             .background(.black.opacity(0.14))
     }
@@ -372,7 +372,7 @@ struct LyricsView: View {
     private func controlButton(_ icon: String, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon).font(.system(size: 14)).foregroundStyle(.white.opacity(0.65)).frame(width: 28, height: 28)
-        }.buttonStyle(.plain).accessibilityLabel(label)
+        }.buttonStyle(.plain).accessibilityLabel(L(label))
     }
 
     private func time(_ seconds: TimeInterval) -> String {
