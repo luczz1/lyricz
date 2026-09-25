@@ -18,13 +18,11 @@ Da esquerda para a direita: **letra sincronizada**, **trechos favoritos** e **aj
 
 ### Baixar o app pronto
 
-O suporte ao Apple Music está no código da versão 1.5. O download abaixo é da versão 1.4, com suporte ao Spotify; para usar o Apple Music agora, siga a opção de compilação abaixo.
-
-**Quer instalar sem compilar? [Baixe o Lyricz para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.4.0/Lyricz-1.4.0-macOS-AppleSilicon.zip).**
+**Quer instalar sem compilar? [Baixe o Lyricz 1.5.0 para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.5.0/Lyricz-1.5.0-macOS-AppleSilicon.zip).**
 
 1. Baixe o ZIP e dê dois cliques para extrair.
 2. Arraste **Lyricz.app** para **Aplicativos**.
-3. Abra o Lyricz, deixe o Spotify tocando e permita o acesso quando o macOS solicitar.
+3. Abra o Lyricz, escolha Automático, Spotify ou Apple Music, e permita o acesso ao player quando o macOS solicitar.
 
 Esse download é para Macs com chip **M1, M2, M3 ou outro Apple Silicon**, com macOS 13 ou superior. Ainda não há um download pronto para Macs Intel. Todas as versões publicadas ficam em [Releases](https://github.com/luczz1/lyricz/releases).
 
