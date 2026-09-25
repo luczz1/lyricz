@@ -57,28 +57,13 @@ struct LyricsView: View {
                 Circle().fill(accent).frame(width: 5, height: 5)
                 Text(model.activePlayer?.name ?? "Player").font(.system(size: 11)).foregroundStyle(.white.opacity(0.55))
             }
-            Menu {
-                Toggle("Letra flutuante", isOn: $model.floatingLyrics)
-                Button("Trechos favoritos") { showFavorites = true; showVersions = false; showSettings = false }
-                Button("Escolher outra versão da letra") {
-                    showVersions = true; showFavorites = false; showSettings = false; model.searchVersions()
-                }.disabled(model.track == nil)
-                Divider()
-                Picker("Player", selection: $model.playerPreference) {
-                    ForEach(PlayerPreference.allCases) { Text($0.name).tag($0) }
-                }
-                Button("Abrir Spotify") { model.openPlayer(.spotify) }
-                Button("Abrir Apple Music") { model.openPlayer(.appleMusic) }
-                Button("Reconectar", action: model.reconnect)
-                Button("Buscar letra novamente", action: model.refreshLyrics).disabled(model.track == nil)
-                Divider()
-                Toggle("Mostrar frase na barra", isOn: $model.showLyricsInBar)
-                Divider()
-                Button("Sair do Lyricz") { NSApp.terminate(nil) }.keyboardShortcut("q")
-            } label: {
-                Image(systemName: "ellipsis").frame(width: 20, height: 20)
-            }.menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
-                .accessibilityLabel("Mais opções")
+            MoreOptionsMenu(model: model, showFavorites: {
+                showFavorites = true; showVersions = false; showSettings = false
+            }, showVersions: {
+                showVersions = true; showFavorites = false; showSettings = false
+                model.searchVersions()
+            }).frame(width: 24, height: 22)
+
         }.padding(.horizontal, 24).padding(.top, 22).padding(.bottom, 24)
     }
 
