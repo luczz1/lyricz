@@ -60,9 +60,9 @@ final class YouTubeMusicBridge: @unchecked Sendable {
     func send(_ command: PlayerBridge.Command) async throws {
         let operation: String
         switch command {
-        case .playPause: operation = Self.clickButton("ytmusic-player-bar #play-pause-button")
-        case .previous: operation = Self.clickButton("ytmusic-player-bar .previous-button")
-        case .next: operation = Self.clickButton("ytmusic-player-bar .next-button")
+        case .playPause: operation = Self.clickButton("ytmusic-player-bar #play-pause-button, .ytmusicPlayerControlsPlayPauseButton button")
+        case .previous: operation = Self.clickButton("ytmusic-player-bar .previous-button, .ytmusicPlayerControlsPreviousButton button")
+        case .next: operation = Self.clickButton("ytmusic-player-bar .next-button, .ytmusicPlayerControlsNextButton button")
         }
         guard try await act(operation, expectedTrack: nil) else {
             throw PlayerError.script(L("A faixa mudou. Selecione um trecho da música atual."))
@@ -70,7 +70,7 @@ final class YouTubeMusicBridge: @unchecked Sendable {
     }
 
     private static func clickButton(_ selector: String) -> String {
-        "const button = document.querySelector(\(jsonString(selector))); if (!button || button.disabled) return false; button.click()"
+        "const button = document.querySelector(\(jsonString(selector))); if (!button || button.disabled || button.getAttribute('aria-disabled') === 'true') return false; button.click()"
     }
 
     func seek(to position: TimeInterval, trackID: String) async throws -> Bool {
@@ -88,7 +88,7 @@ final class YouTubeMusicBridge: @unchecked Sendable {
                 if (location.origin !== 'https://music.youtube.com') return false;
                 const video = document.querySelector('video');
                 const player = document.querySelector('#movie_player');
-                const id = player?.getVideoData?.()?.video_id || new URL(location.href).searchParams.get('v');
+                const id = player?.getVideoData?.()?.video_id || player?.querySelector('.ytp-title-link')?.href?.match(/[?&]v=([A-Za-z0-9_-]+)/)?.[1] || new URL(location.href).searchParams.get('v');
                 if (!video || player?.classList.contains('ad-showing') || 'youtubeMusic:' + id !== \(expected)) return false;
                 \(operation);
                 return true;
@@ -137,7 +137,7 @@ final class YouTubeMusicBridge: @unchecked Sendable {
         if (!video || !Number.isFinite(video.duration) || player?.classList.contains('ad-showing')) return 'null';
         const meta = navigator.mediaSession?.metadata;
         const info = player?.getVideoData?.() || {};
-        const id = info.video_id || new URL(location.href).searchParams.get('v');
+        const id = info.video_id || player?.querySelector('.ytp-title-link')?.href?.match(/[?&]v=([A-Za-z0-9_-]+)/)?.[1] || new URL(location.href).searchParams.get('v');
         const bar = document.querySelector('ytmusic-player-bar');
         const title = meta?.title || bar?.querySelector('.title')?.textContent?.trim() || info.title;
         const artist = meta?.artist || bar?.querySelector('.byline a')?.textContent?.trim() || info.author || '';

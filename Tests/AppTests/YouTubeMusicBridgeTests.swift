@@ -45,6 +45,12 @@ final class YouTubeMusicBridgeTests: XCTestCase {
         let snapshot = try XCTUnwrap(YouTubeMusicBridge.decode(json))
         XCTAssertEqual(snapshot.track.title, "Song")
         XCTAssertFalse(snapshot.isPlaying)
+        // The current miniplayer exposes the video ID on its title link rather
+        // than a page-world getVideoData method (including on playlist URLs).
+        js.evaluateScript("player.getVideoData = undefined; player.querySelector = () => ({href:'https://music.youtube.com/watch?v=new_ID-123'});")
+        let currentLayout = try XCTUnwrap(js.evaluateScript(YouTubeMusicBridge.snapshotJavaScript)?.toString())
+        XCTAssertNil(js.exception)
+        XCTAssertEqual(try YouTubeMusicBridge.decode(currentLayout)?.track.id, "youtubeMusic:new_ID-123")
         js.evaluateScript("ad = true")
         XCTAssertEqual(js.evaluateScript(YouTubeMusicBridge.snapshotJavaScript)?.toString(), "null")
         js.evaluateScript("ad = false; location.origin = 'https://music.youtube.com.evil.example'")

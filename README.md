@@ -20,7 +20,7 @@ Da esquerda para a direita: **letra sincronizada**, **trechos favoritos** e **aj
 
 ### Baixar o app pronto
 
-**Quer instalar sem compilar? [Baixe o Lyricz 1.7.0 para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.7.0/Lyricz-1.7.0-macOS-AppleSilicon.zip).**
+**Quer instalar sem compilar? [Baixe o Lyricz 1.7.1 para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.7.1/Lyricz-1.7.1-macOS-AppleSilicon.zip).**
 
 1. Baixe o ZIP e dê dois cliques para extrair.
 2. Arraste **Lyricz.app** para **Aplicativos**.
