@@ -18,6 +18,7 @@ final class PlayerBridge: @unchecked Sendable {
     let source: PlayerSource
     init(source: PlayerSource) { self.source = source }
     private let queue = DispatchQueue(label: "com.local.spotifylyricsbar.apple-events", qos: .utility)
+    private let youtube = YouTubeMusicBridge()
 
     enum Command: String {
         case playPause = "playpause"
@@ -26,7 +27,8 @@ final class PlayerBridge: @unchecked Sendable {
     }
 
     func snapshot() async throws -> PlaybackSnapshot? {
-        try await execute(source == .spotify ? Self.snapshotScript : Self.musicSnapshotScript) { result in
+        if source == .youtubeMusic { return try await youtube.snapshot() }
+        return try await execute(source == .spotify ? Self.snapshotScript : Self.musicSnapshotScript) { result in
             self.decodeSnapshot(result)
         }
     }
@@ -52,6 +54,7 @@ final class PlayerBridge: @unchecked Sendable {
     }
 
     func send(_ command: Command) async throws {
+        if source == .youtubeMusic { try await youtube.send(command); return }
         let source = """
         with timeout of 5 seconds
             if application id "\(self.source.bundleID)" is running then
@@ -63,6 +66,7 @@ final class PlayerBridge: @unchecked Sendable {
     }
 
     func seek(to position: TimeInterval, trackID: String) async throws -> Bool {
+        if source == .youtubeMusic { return try await youtube.seek(to: position, trackID: trackID) }
         guard position.isFinite, position >= 0 else { return false }
         let seconds = String(format: "%.3f", locale: Locale(identifier: "en_US_POSIX"), position)
         let nativeID = source == .appleMusic ? String(trackID.dropFirst("appleMusic:".count)) : trackID

@@ -13,7 +13,7 @@ final class MoreOptionsMenuTests: XCTestCase {
         let coordinator = view.makeCoordinator()
         let menu = coordinator.buildMenu()
         let players = try XCTUnwrap(menu.item(withTitle: "Player")?.submenu)
-        XCTAssertEqual(players.items.map(\.title), ["Automático", "Spotify", "Apple Music"])
+        XCTAssertEqual(players.items.map(\.title), ["Automático", "Spotify", "Apple Music", "YouTube Music"])
         XCTAssertEqual(players.items[0].state, .on)
         model.control(.playPause)
         model.colorIntensity = 0.3

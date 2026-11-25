@@ -66,6 +66,7 @@ struct MoreOptionsMenu: NSViewRepresentable {
             menu.addItem(playerItem)
             add(L("Abrir Spotify"), to: menu) { model.openPlayer(.spotify) }
             add(L("Abrir Apple Music"), to: menu) { model.openPlayer(.appleMusic) }
+            add(L("Abrir YouTube Music"), to: menu) { model.openPlayer(.youtubeMusic) }
             add(L("Reconectar"), to: menu, action: model.reconnect)
             add(L("Buscar letra novamente"), to: menu, enabled: model.track != nil, action: model.refreshLyrics)
             menu.addItem(.separator())

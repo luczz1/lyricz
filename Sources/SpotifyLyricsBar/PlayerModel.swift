@@ -145,7 +145,7 @@ final class PlayerModel: ObservableObject {
     @Published private(set) var permissionPlayer: PlayerSource?
     private var deniedPlayers: Set<PlayerSource> = []
     private var previouslyPlaying: Set<PlayerSource> = []
-    var playerName: String { (playerPreference.source ?? activePlayer ?? permissionPlayer)?.name ?? L("Spotify ou Apple Music") }
+    var playerName: String { (playerPreference.source ?? activePlayer ?? permissionPlayer)?.name ?? L("Spotify, Apple Music ou YouTube Music") }
     private var bridge: PlayerBridge { bridges[playerPreference.source ?? activePlayer ?? .spotify]! }
     private let lyricsClient = LyricsClient()
     private let artworkService = ArtworkService()
@@ -279,6 +279,15 @@ final class PlayerModel: ObservableObject {
     }
 
     func openPlayer(_ source: PlayerSource) {
+        if source == .youtubeMusic {
+            let url = URL(string: "https://music.youtube.com/")!
+            let preferred = YouTubeMusicBridge.browsers.first { !NSRunningApplication.runningApplications(withBundleIdentifier: $0.id).isEmpty }
+                ?? YouTubeMusicBridge.browsers.first { NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0.id) != nil }
+            if let preferred, let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: preferred.id) {
+                NSWorkspace.shared.open([url], withApplicationAt: app, configuration: NSWorkspace.OpenConfiguration())
+            } else { commandError = L("Abra o YouTube Music em um navegador compatível e dê play.") }
+            return
+        }
         guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: source.bundleID) else {
             commandError = LF("Instale o %@ para usar este player.", source.name); return
         }
@@ -332,7 +341,9 @@ final class PlayerModel: ObservableObject {
         var running = false
         var failure: String?
         for source in candidates {
-            guard !NSRunningApplication.runningApplications(withBundleIdentifier: source.bundleID).isEmpty else { continue }
+            let available = source == .youtubeMusic ? YouTubeMusicBridge.isRunning
+                : !NSRunningApplication.runningApplications(withBundleIdentifier: source.bundleID).isEmpty
+            guard available else { continue }
             running = true
             guard !deniedPlayers.contains(source) else { continue }
             do {

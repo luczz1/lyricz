@@ -1,14 +1,26 @@
 import Foundation
 
 public enum PlayerSource: String, CaseIterable, Codable, Sendable, Identifiable {
-    case spotify, appleMusic
+    case spotify, appleMusic, youtubeMusic
     public var id: String { rawValue }
-    public var name: String { self == .spotify ? "Spotify" : "Apple Music" }
-    public var bundleID: String { self == .spotify ? "com.spotify.client" : "com.apple.Music" }
+    public var name: String {
+        switch self {
+        case .spotify: return "Spotify"
+        case .appleMusic: return "Apple Music"
+        case .youtubeMusic: return "YouTube Music"
+        }
+    }
+    public var bundleID: String {
+        switch self {
+        case .spotify: return "com.spotify.client"
+        case .appleMusic: return "com.apple.Music"
+        case .youtubeMusic: return "com.google.Chrome"
+        }
+    }
 }
 
 public enum PlayerPreference: String, CaseIterable, Identifiable {
-    case automatic, spotify, appleMusic
+    case automatic, spotify, appleMusic, youtubeMusic
     public var id: String { rawValue }
     public var source: PlayerSource? { PlayerSource(rawValue: rawValue) }
     public var name: String { source?.name ?? "Automático" }

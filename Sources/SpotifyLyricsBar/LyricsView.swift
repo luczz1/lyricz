@@ -254,6 +254,10 @@ struct LyricsView: View {
             }
             Text(L("No automático, acompanha quem começar a tocar. A escolha manual mantém o player selecionado."))
                 .font(.caption).foregroundStyle(.secondary)
+            Text(L("YouTube Music: abra music.youtube.com no Chrome, Safari, Edge ou Brave. Permita Automação para o Lyricz e ative JavaScript via Apple Events no navegador."))
+                .font(.caption).foregroundStyle(.secondary)
+            Link(L("Como conectar o YouTube Music"), destination: URL(string: "https://github.com/luczz1/lyricz#youtube-music-no-navegador")!)
+                .font(.caption).foregroundStyle(accent)
             Toggle(L("Usar cores da capa"), isOn: $model.useAlbumColors).toggleStyle(.switch).tint(accent)
             VStack(alignment: .leading, spacing: 8) {
                 HStack { Text(L("Intensidade das cores")); Spacer(); Text("\(Int(model.colorIntensity * 100))%").monospacedDigit() }

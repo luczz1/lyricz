@@ -1,6 +1,6 @@
 # Lyricz
 
-Letras do Spotify e do Apple Music na barra de menus do Mac. O Lyricz acompanha a música que está tocando e mostra a frase atual sem precisar deixar o player aberto na tela.
+Letras do Spotify, do Apple Music e do YouTube Music na barra de menus do Mac. O Lyricz acompanha a música que está tocando e mostra a frase atual sem precisar deixar o player aberto na tela.
 
 Ao clicar na barra, você encontra a letra completa, controles de reprodução e um painel com as cores da capa do álbum. Também dá para deixar a letra numa janela flutuante e salvar seus trechos favoritos.
 
@@ -20,11 +20,11 @@ Da esquerda para a direita: **letra sincronizada**, **trechos favoritos** e **aj
 
 ### Baixar o app pronto
 
-**Quer instalar sem compilar? [Baixe o Lyricz 1.6.1 para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.6.1/Lyricz-1.6.1-macOS-AppleSilicon.zip).**
+**Quer instalar sem compilar? [Baixe o Lyricz 1.7.0 para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.7.0/Lyricz-1.7.0-macOS-AppleSilicon.zip).**
 
 1. Baixe o ZIP e dê dois cliques para extrair.
 2. Arraste **Lyricz.app** para **Aplicativos**.
-3. Abra o Lyricz, escolha Automático, Spotify ou Apple Music, e permita o acesso ao player quando o macOS solicitar.
+3. Abra o Lyricz, escolha Automático, Spotify, Apple Music ou YouTube Music, e permita o acesso ao player quando o macOS solicitar.
 
 Esse download é para Macs com chip **M1, M2, M3 ou outro Apple Silicon**, com macOS 13 ou superior. Ainda não há um download pronto para Macs Intel. Todas as versões publicadas ficam em [Releases](https://github.com/luczz1/lyricz/releases).
 
@@ -37,7 +37,7 @@ Se preferir compilar, siga os passos abaixo.
 Você vai precisar de:
 
 - macOS 13 ou superior.
-- Spotify para macOS ou o app Música (Apple Music) instalado.
+- Spotify para macOS, o app Música (Apple Music) ou YouTube Music aberto em um navegador compatível.
 - Xcode ou Command Line Tools com Swift 6 ou superior.
 - Internet para buscar letras e carregar capas.
 
@@ -79,12 +79,12 @@ O build usa assinatura local e não é notarizado para distribuição. O aplicat
 
 ## Primeiro uso
 
-1. Abra o Spotify ou o Apple Music neste Mac e coloque uma música para tocar.
+1. Abra o Spotify, o Apple Music ou uma aba do YouTube Music neste Mac e coloque uma música para tocar.
 2. Abra o Lyricz.
 3. Quando o macOS pedir, permita que o Lyricz controle o player escolhido. Essa permissão é usada para ler a faixa, acompanhar a posição e oferecer os controles de reprodução.
 4. Clique na frase ou no ícone do Lyricz na barra de menus para abrir o painel.
 
-Não é necessário configurar uma conta de desenvolvedor do Spotify, chaves de API ou fazer outro login. A integração usa os aplicativos instalados no Mac; os players de navegador e a reprodução exclusivamente no celular não são suportados.
+Não é necessário configurar uma conta de desenvolvedor do Spotify, chaves de API ou fazer outro login. Spotify e Apple Music usam os aplicativos instalados no Mac. YouTube Music usa uma aba em um navegador compatível, com a configuração abaixo. Reprodução exclusivamente no celular não é suportada.
 
 Para encerrar o aplicativo, abra **… → Sair do Lyricz**.
 
@@ -94,19 +94,32 @@ Para encerrar o aplicativo, abra **… → Sair do Lyricz**.
 
 O Lyricz usa o primeiro idioma disponível nas preferências do macOS entre português, inglês e espanhol. Se nenhum dos três estiver na lista, o app aparece em inglês. Ao mudar o idioma do Mac, feche e abra o Lyricz para atualizar a interface. A letra e os dados da música não são traduzidos.
 
-### Spotify, Apple Music e troca automática
+### Spotify, Apple Music, YouTube Music e troca automática
 
-Em **… → Player** ou nos ajustes, escolha **Automático**, **Spotify** ou **Apple Music**.
+Em **… → Player** ou nos ajustes, escolha **Automático**, **Spotify**, **Apple Music** ou **YouTube Music**.
 
 - **Automático:** acompanha o player que começar a tocar. Quando o outro sai da pausa e começa a reproduzir, o Lyricz passa a acompanhá-lo. Se os dois já estiverem tocando, mantém a seleção atual; ao abrir sem seleção anterior, usa o Spotify como desempate.
-- **Spotify / Apple Music:** fixa o player, mesmo se o outro estiver tocando. A preferência é lembrada ao reabrir o app.
+- **Spotify / Apple Music / YouTube Music:** fixa o player, mesmo se o outro estiver tocando. A preferência é lembrada ao reabrir o app.
 
 O nome no topo do painel indica o player conectado. Pausa, troca de faixa e clique em versos controlam esse player. O Lyricz não pausa o outro aplicativo automaticamente.
 
 O macOS pede permissão de Automação separadamente para cada app. Se negar acesso a um deles, o outro continua disponível no modo automático. Depois de liberar a permissão, use **… → Reconectar**.
 
-No Apple Music, a faixa precisa disponibilizar título, duração e posição pelo app Música. A capa é usada quando o app a fornece. As letras continuam vindo do LRCLIB, inclusive para músicas tocadas no Apple Music. Favoritos, cores, janela flutuante e ajustes de tempo funcionam com ambos; as preferências por faixa são separadas por player.
+No Apple Music, a faixa precisa disponibilizar título, duração e posição pelo app Música. A capa é usada quando o app a fornece. As letras continuam vindo do LRCLIB, inclusive para músicas tocadas no Apple Music. Favoritos, cores, janela flutuante e ajustes de tempo funcionam com os três; as preferências por faixa são separadas por player.
 
+
+### YouTube Music no navegador
+
+1. Abra [music.youtube.com](https://music.youtube.com/) no **Google Chrome, Safari, Microsoft Edge ou Brave** e coloque uma música para tocar. Deixe a aba aberta.
+2. No navegador, habilite **Allow JavaScript from Apple Events** (Permitir JavaScript de Eventos Apple). No Chrome e nos navegadores baseados em Chromium, a opção fica em **Visualizar → Desenvolvedor**. No Safari, habilite os recursos para desenvolvedores em **Ajustes → Avançado** e procure a opção nos ajustes ou no menu **Desenvolvedor**, conforme a versão do Safari.
+3. Quando o macOS solicitar, permita que o Lyricz controle o navegador. Essa permissão também pode ser conferida em **Ajustes do Sistema → Privacidade e Segurança → Automação**.
+4. No Lyricz, escolha **YouTube Music** no menu **Player**, ou mantenha **Automático**. Use **Reconectar** depois de alterar as permissões.
+
+O Lyricz lê título, artista, álbum, capa, duração e posição da faixa na aba. Pausa, próxima/anterior e clique em versos controlam essa mesma aba. A integração confere o domínio e a faixa antes de executar comandos. Anúncios e transmissões sem duração definida são ignorados. As letras continuam vindo do LRCLIB; versões ao vivo e videoclipes podem precisar de outra versão da letra ou de ajuste de sincronização.
+
+Use uma única aba do YouTube Music para evitar ambiguidades. Se houver várias, o Lyricz dá preferência a uma que esteja tocando e mantém a seleção enquanto possível. Firefox, apps independentes para desktop e janelas instaladas como PWA não estão incluídos nesta integração. Mudanças no site do YouTube Music podem exigir ajustes no Lyricz.
+
+A configuração dos navegadores é descrita na [documentação do Chromium](https://www.chromium.org/developers/applescript/) e na [documentação do Safari](https://developer.apple.com/documentation/safari-developer-tools/developer-settings).
 
 ### Letra na barra de menus
 
@@ -212,7 +225,7 @@ Abra o novo `dist/Lyricz.app`. Se usa uma cópia em Aplicativos, substitua essa 
 
 ## Dados e privacidade
 
-O Lyricz lê a faixa e a posição de reprodução dos players locais. Para buscar letras, envia os metadados da música ao LRCLIB. As capas do Spotify são baixadas pelos endereços fornecidos pelo app. No Apple Music, a imagem é lida diretamente do app Música. As cores são extraídas no próprio Mac.
+O Lyricz lê a faixa e a posição de reprodução dos players locais e das abas de YouTube Music nos navegadores compatíveis. Para YouTube Music, a integração usa Apple Events para localizar a aba e executar o leitor de reprodução somente no domínio music.youtube.com; ela não lê cookies nem credenciais de login. Para buscar letras, envia os metadados da música ao LRCLIB. As capas do Spotify e do YouTube Music são baixadas pelos endereços fornecidos pelo player. No Apple Music, a imagem é lida diretamente do app Música. As cores são extraídas no próprio Mac.
 
 Preferências, correções de tempo, trechos favoritos com suas capas e versões de letras escolhidas manualmente ficam armazenados localmente. Não há sincronização desses dados entre dispositivos, telemetria própria ou armazenamento de credenciais dos serviços.
 
@@ -244,4 +257,4 @@ dist/                     Aplicativo gerado, fora do controle de versão
 
 O identificador do app continua sendo `com.local.spotifylyricsbar` para preservar os dados de instalações anteriores ao nome Lyricz.
 
-As letras são fornecidas pelo [LRCLIB](https://lrclib.net/docs). O Lyricz é um projeto independente, sem afiliação com o Spotify ou a Apple.
+As letras são fornecidas pelo [LRCLIB](https://lrclib.net/docs). O Lyricz é um projeto independente, sem afiliação com o Spotify, a Apple ou o Google.

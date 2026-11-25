@@ -150,7 +150,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
                           scroll: model.scrollLongLines, showText: !model.isBarCompact,
                           symbol: model.isBarCompact && model.showLyricsInBar ? "music.note" : "waveform",
                           speed: model.scrollSpeed)
-        button.toolTip = model.track.map { "\($0.title) — \($0.artist)\n\(model.currentText)" } ?? L("Lyricz · Spotify e Apple Music")
+        button.toolTip = model.track.map { "\($0.title) — \($0.artist)\n\(model.currentText)" } ?? "Lyricz · Spotify · Apple Music · YouTube Music"
         button.setAccessibilityLabel(model.barTitle)
     }
 
