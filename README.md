@@ -20,7 +20,7 @@ Da esquerda para a direita: **letra sincronizada**, **trechos favoritos** e **aj
 
 ### Baixar o app pronto
 
-**Quer instalar sem compilar? [Baixe o Lyricz 1.7.1 para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.7.1/Lyricz-1.7.1-macOS-AppleSilicon.zip).**
+**Quer instalar sem compilar? [Baixe o Lyricz 1.7.2 para Mac com Apple Silicon](https://github.com/luczz1/lyricz/releases/download/v1.7.2/Lyricz-1.7.2-macOS-AppleSilicon.zip).**
 
 1. Baixe o ZIP e dê dois cliques para extrair.
 2. Arraste **Lyricz.app** para **Aplicativos**.
@@ -116,6 +116,8 @@ No Apple Music, a faixa precisa disponibilizar título, duração e posição pe
 4. No Lyricz, escolha **YouTube Music** no menu **Player**, ou mantenha **Automático**. Use **Reconectar** depois de alterar as permissões.
 
 O Lyricz lê título, artista, álbum, capa, duração e posição da faixa na aba. Pausa, próxima/anterior e clique em versos controlam essa mesma aba. A integração confere o domínio e a faixa antes de executar comandos. Anúncios e transmissões sem duração definida são ignorados. As letras continuam vindo do LRCLIB; versões ao vivo e videoclipes podem precisar de outra versão da letra ou de ajuste de sincronização.
+
+Na reprodução contínua da fila, o Lyricz usa o tempo e a duração da faixa mostrados no controle de busca do YouTube Music. Assim, a contagem e a busca da letra acompanham cada música mesmo quando o navegador mantém uma linha do tempo contínua por trás da reprodução.
 
 Use uma única aba do YouTube Music para evitar ambiguidades. Se houver várias, o Lyricz dá preferência a uma que esteja tocando e mantém a seleção enquanto possível. Firefox, apps independentes para desktop e janelas instaladas como PWA não estão incluídos nesta integração. Mudanças no site do YouTube Music podem exigir ajustes no Lyricz.
 

@@ -75,8 +75,21 @@ final class YouTubeMusicBridge: @unchecked Sendable {
 
     func seek(to position: TimeInterval, trackID: String) async throws -> Bool {
         guard position.isFinite, position >= 0 else { return false }
+        return try await act(Self.seekJavaScript(position: position), expectedTrack: trackID)
+    }
+
+    static func seekJavaScript(position: TimeInterval) -> String {
         let seconds = String(format: "%.3f", locale: Locale(identifier: "en_US_POSIX"), position)
-        return try await act("video.currentTime = Math.min(\(seconds), video.duration)", expectedTrack: trackID)
+        return """
+        const seconds = Math.min(\(seconds), current.snapshot.duration);
+        if (current.slider?.tagName === 'INPUT') {
+            current.slider.value = String(seconds);
+            current.slider.dispatchEvent(new Event('input', {bubbles:true}));
+            current.slider.dispatchEvent(new Event('change', {bubbles:true}));
+        } else {
+            video.currentTime = current.offset + seconds;
+        }
+        """
     }
 
     private func act(_ operation: String, expectedTrack: String?) async throws -> Bool {
@@ -86,10 +99,10 @@ final class YouTubeMusicBridge: @unchecked Sendable {
             let js = """
             (() => {
                 if (location.origin !== 'https://music.youtube.com') return false;
-                const video = document.querySelector('video');
-                const player = document.querySelector('#movie_player');
-                const id = player?.getVideoData?.()?.video_id || player?.querySelector('.ytp-title-link')?.href?.match(/[?&]v=([A-Za-z0-9_-]+)/)?.[1] || new URL(location.href).searchParams.get('v');
-                if (!video || player?.classList.contains('ad-showing') || 'youtubeMusic:' + id !== \(expected)) return false;
+                \(Self.mediaJavaScript)
+                const current = readCurrentMedia();
+                if (!current || 'youtubeMusic:' + current.snapshot.id !== \(expected)) return false;
+                const video = current.media;
                 \(operation);
                 return true;
             })()
@@ -129,22 +142,61 @@ final class YouTubeMusicBridge: @unchecked Sendable {
                                 position: min(value.duration, max(0, value.position)))
     }
 
+    /// Keep playback time and metadata tied to the same media element. YouTube
+    /// may retain an old video while a gapless queue item starts on another one.
+    static let mediaJavaScript = """
+    function readCurrentMedia() {
+        if (location.origin !== 'https://music.youtube.com') return null;
+        const meta = navigator.mediaSession?.metadata;
+        const normalize = value => (value || '').normalize('NFKC').replace(/\\s+/g, ' ').trim().toLowerCase();
+        const bar = document.querySelector('ytmusic-player-bar');
+        const slider = document.querySelector('.ytMusicMiniPlayerProgressBar, ytmusic-player-bar #progress-bar');
+        const sliderNumber = (property, attribute) => {
+            const value = slider?.[property] ?? slider?.getAttribute(attribute);
+            return value === undefined || value === null || value === '' ? NaN : Number(value);
+        };
+        const songDuration = sliderNumber('max', 'aria-valuemax');
+        const songPosition = sliderNumber('value', 'aria-valuenow');
+        // With gapless playback the media element has a cumulative, growing
+        // MediaSource timeline. The seek control remains relative to this song.
+        if (slider && (!Number.isFinite(songDuration) || songDuration <= 0 ||
+            !Number.isFinite(songPosition) || songPosition < 0 || songPosition > songDuration)) return null;
+        const candidates = [];
+        for (const media of document.querySelectorAll('video, audio')) {
+            if (!Number.isFinite(media.duration) || media.duration <= 0 ||
+                !Number.isFinite(media.currentTime) || media.readyState === 0 || media.ended) continue;
+            const player = media.closest('.html5-video-player') || document.querySelector('#movie_player');
+            if (player?.classList.contains('ad-showing')) continue;
+            const info = player?.getVideoData?.() || {};
+            const link = player?.querySelector('.ytp-title-link');
+            const playerTitle = info.title || link?.textContent?.trim();
+            // Metadata and the old video are not updated atomically by the site.
+            if (meta?.title && playerTitle && normalize(meta.title) !== normalize(playerTitle)) continue;
+            const id = info.video_id || link?.href?.match(/[?&]v=([A-Za-z0-9_-]+)/)?.[1];
+            // The address bar can still point at the previous song after autoplay.
+            // A player-owned identity is required before accepting or controlling it.
+            if (!id) continue;
+            const title = playerTitle || meta?.title || bar?.querySelector('.title')?.textContent?.trim();
+            if (!title) continue;
+            const duration = slider ? songDuration : media.duration;
+            const position = slider ? songPosition : media.currentTime;
+            candidates.push({media, slider, offset: media.currentTime - position, snapshot: {id, title,
+                artist: info.author || meta?.artist || bar?.querySelector('.byline a')?.textContent?.trim() || '',
+                album: meta?.album || '', duration, position,
+                playing: !media.paused && !media.ended,
+                artwork: meta?.artwork?.slice(-1)[0]?.src || bar?.querySelector('img')?.src || null}});
+        }
+        // A hidden video is normal for audio-only playback. Playback state, not
+        // visibility or DOM order, selects the current queue item.
+        return candidates.find(item => item.snapshot.playing) || candidates[0] || null;
+    }
+    """
+
     static let snapshotJavaScript = """
     (() => {
-        if (location.origin !== 'https://music.youtube.com') return 'null';
-        const video = document.querySelector('video');
-        const player = document.querySelector('#movie_player');
-        if (!video || !Number.isFinite(video.duration) || player?.classList.contains('ad-showing')) return 'null';
-        const meta = navigator.mediaSession?.metadata;
-        const info = player?.getVideoData?.() || {};
-        const id = info.video_id || player?.querySelector('.ytp-title-link')?.href?.match(/[?&]v=([A-Za-z0-9_-]+)/)?.[1] || new URL(location.href).searchParams.get('v');
-        const bar = document.querySelector('ytmusic-player-bar');
-        const title = meta?.title || bar?.querySelector('.title')?.textContent?.trim() || info.title;
-        const artist = meta?.artist || bar?.querySelector('.byline a')?.textContent?.trim() || info.author || '';
-        if (!id || !title) return 'null';
-        return JSON.stringify({id, title, artist, album: meta?.album || '', duration: video.duration,
-            position: video.currentTime, playing: !video.paused && !video.ended,
-            artwork: meta?.artwork?.slice(-1)[0]?.src || bar?.querySelector('img')?.src || null});
+        \(mediaJavaScript)
+        const current = readCurrentMedia();
+        return JSON.stringify(current?.snapshot || null);
     })()
     """
 
@@ -196,6 +248,9 @@ final class YouTubeMusicBridge: @unchecked Sendable {
         guard let script = NSAppleScript(source: source) else { throw PlayerError.script(L("Não foi possível preparar a conexão com o player.")) }
         var error: NSDictionary?
         let result = script.executeAndReturnError(&error)
+        if CommandLine.arguments.contains("--debug-youtube") {
+            NSLog("Lyricz YouTube Music (%@): %@", browser.name, result.description)
+        }
         if error != nil {
             throw PlayerError.script(LF("No %@, permita Automação para o Lyricz e ative JavaScript via Apple Events. Consulte as instruções de YouTube Music nos ajustes.", browser.name))
         }
